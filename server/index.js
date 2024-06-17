@@ -26,12 +26,30 @@ app.get('/', (req, res) => {
 io.on("connection", (socket) => {
   console.log('New connection');
   console.log("Id:", socket.id);
-
   // emit  -> messege send to perticular client
-    socket.emit('welcome', `Welcome to server (emit).`);
-
+    // socket.emit('welcome', `Welcome to server (emit).`);
     // broadcast -> messege send to all client except sender
-  socket.broadcast.emit('welcome', `${socket.id} joined the server (broadcast).`);
+  // socket.broadcast.emit('welcome', `${socket.id} joined the s/erver (broadcast).`);
+
+  // disconnect -> messege send to perticular client
+
+
+  socket.on('message', (data) => {
+    console.log(data);
+    // io.emit('message', data);
+    // io -> entire cilent
+    // io.emit('receive-message', data) // send to all client including sender
+    socket.broadcast.emit('receive-message', data) // send to all client except sender
+  })
+
+  //receive-message -> messege send to all client
+  
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  console.log("Id:", socket.id);
+  });
+
 });
 
   
