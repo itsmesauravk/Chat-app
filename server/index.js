@@ -39,10 +39,19 @@ io.on("connection", (socket) => {
     // io.emit('message', data);
     // io -> entire cilent
     // io.emit('receive-message', data) // send to all client including sender
-    socket.broadcast.emit('receive-message', data) // send to all client except sender
-  })
+    // socket.broadcast.emit('receive-message', data) // send to all client except sender
 
+    io.to(data.room).emit('receive-message', data.message)  // send to all client in particular room
+  })
   //receive-message -> messege send to all client
+
+
+  //for joining room
+  socket.on('join', (group) => {
+    socket.join(group);
+    console.log(`${socket.id} joined ${group}`);
+    socket.emit('joined', `You joined ${group}`);
+  })
   
 
   socket.on('disconnect', () => {
