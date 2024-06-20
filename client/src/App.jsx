@@ -4,7 +4,9 @@ import { Button, Container, Stack, TextField, Typography } from '@mui/material'
 
 const App = () => {
 
-  const socket = useMemo(() => io('http://localhost:4000'), [])
+  const socket = useMemo(() => io('http://localhost:4000',{
+    withCredentials: true
+  }), [])
 
   const [message, setMessage] = useState('')
   const [room, setRoom] = useState('')
