@@ -2,6 +2,8 @@ const express = require('express');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const server = createServer(app);
@@ -14,6 +16,8 @@ const io = new Server(server, {
   }
 });
 
+const secretKeyJwt = "helloworld"
+
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
@@ -22,6 +26,25 @@ app.use(cors({
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
+
+app.get('/login', (req, res) => {
+    const token = jwt.sign({_id:"saurav", secretKeyJwt})
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    }).json({message: 'Logged in'})
+})
+
+
+//middleware
+// io.use((socket, next) => {
+
+//     next();
+//   }
+
+
 
 io.on("connection", (socket) => {
   console.log('New connection');
