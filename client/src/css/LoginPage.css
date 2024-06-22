@@ -1,0 +1,81 @@
+/* Color Variables */
+:root {
+  --background-color: #121212;
+  --surface-color: #1D1D1D;
+  --primary-color: #BB86FC;
+  --secondary-color: #03DAC6;
+
+  --on-background-color: #DBDBDB;
+  --on-surface-color:  #E3E3E3;
+  --on-primary-color: #040305;
+  --on-secondary-color: #000000;
+}
+
+.app-name{
+  
+  font-weight: bold;
+  color: var(--primary-color);
+
+}
+
+/* Login Container */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--background-color);
+  color: var(--on-background-color);
+}
+
+.login-box {
+  max-width: 400px;
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input-field {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid var(--on-surface-color);
+  border-radius: 5px;
+  color: var(--on-surface-color);
+}
+
+.login-button,
+.google-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.login-button {
+  background-color: var(--primary-color);
+  color: var(--on-primary-color);
+}
+
+.google-button {
+  background-color: var(--secondary-color);
+  color: var(--on-secondary-color);
+}
+
+.forgot-password,
+.create-account-message {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+}

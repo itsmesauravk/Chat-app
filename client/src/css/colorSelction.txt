@@ -1,0 +1,21 @@
+
+For background colors 
+
+Background : #121212
+
+Surface : #1D1D1D
+
+Primary : #BB86FC
+
+Secondary : #03DAC6
+
+
+For text 
+
+On Background : #DBDBDB
+
+On Surface :  #E3E3E3
+
+On Primary : #040305
+
+On Secondary : #000000

@@ -6,7 +6,8 @@ import {CssBaseline} from '@mui/material'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <>
-    <CssBaseline />  {/* Add CssBaseline here -> default css  */}
+    <CssBaseline /> 
+     {/* Add CssBaseline here -> default css  */}
     <App />
   </>,
 )
