@@ -26,35 +26,48 @@ const startSocket = (server) => {
             return;
         }
 
-        if (!user.socketId) {
-            console.log(`New User > ${user.name} connected with new socket ID ${socket.id}`);
-            user.socketId = socket.id;
-            await user.save();
-        } else {
-            console.log(`Old User > ${user.name} connected with socket ID ${socket.id}`);
-            user.socketId = socket.id; // Update the socket ID on every new connection
-            await user.save();
-        }
+        user.socketId = socket.id; 
+        await user.save();
 
         socket.on('message', async (data) => {
             const sender = await Person.findOne({ googleId: data.googleId });
             const receiver = await Person.findById(data.receiverId);
 
-            if (receiver) {
-                console.log(`Message from ${sender.name} to ${receiver.name}: ${data.message}`);
+            if (receiver && receiver.socketId) {
+                // console.log(`Message from ${sender.name} to ${receiver.name}: ${data.message}`);
                 io.to(receiver.socketId).emit('receive-message', {
                     message: data.message,
                     sender: sender.name
                 });
 
-                // const newMessage = new Message({
-                //     sender: sender._id,
-                //     receiver: receiver._id,
-                //     message: data.message
-                // });
+                const room = await Message.findOne({
+                    $or: [
+                        { sender: sender._id, receiver: receiver._id },
+                        { sender: receiver._id, receiver: sender._id }
+                    ]
+                });
 
-                // await newMessage.save();
-                // console.log('Message saved');
+                if (room) {
+                    room.messages.push({
+                        sender: sender._id,
+                        receiver: receiver._id,
+                        message: data.message
+                    });
+                    await room.save();
+                    console.log('Message saved in existing room');
+                } else {
+                    const newMessage = new Message({
+                        sender: sender._id,
+                        receiver: receiver._id,
+                        messages: [{
+                            sender: sender._id,
+                            receiver: receiver._id,
+                            message: data.message
+                        }]
+                    });
+                    await newMessage.save();
+                    console.log('New message room created and message saved');
+                }
             }
         });
 

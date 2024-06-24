@@ -12,6 +12,7 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const messageRoutes = require('./routes/messagesRoutes');
 
 // DB connection
 const connection = require('./DBconnection');
@@ -41,6 +42,7 @@ app.use(cors({
 
 app.use('/', authRoutes);
 app.use('/', userRoutes);
+app.use('/', messageRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World');

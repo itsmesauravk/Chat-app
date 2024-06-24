@@ -2,12 +2,36 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Avatar } from '@mui/material';
 import { io } from 'socket.io-client';
 
-const ChatWindow = ({ dummyMessages = [] }) => {
+const ChatWindow = ({ selectedUserData }) => {
   const [message, setMessage] = useState('');
-  const [receivedMessages, setReceivedMessages] = useState(dummyMessages);
+  const [receivedMessages, setReceivedMessages] = useState([]);
   const googleId = localStorage.getItem('googleId');
-  // const receiverId = '6677f9a9164782bad43a7e3c';  // einstine 
-  const receiverId = '6677d96b092c7a9b455c9441';  // shinchan
+
+  const receiverId = selectedUserData._id;
+
+  const getMessages = async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/messages/${googleId}/${selectedUserData._id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setReceivedMessages(data.messages);  // Set the messages from the database
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedUserData) {
+      getMessages();
+    }
+  }, [selectedUserData]);
 
   const socket = useMemo(() => {
     return io('http://localhost:4000', {
@@ -20,24 +44,24 @@ const ChatWindow = ({ dummyMessages = [] }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (message.trim()) {
-      socket.emit('message', { message, googleId, receiverId });
+    if (message.trim() && selectedUserData) {
+      const data = { message, googleId, receiverId: selectedUserData._id };
+      socket.emit('message', data);
       console.log(`Message sent: ${message}`);
+      setReceivedMessages((prevMessages) => [...prevMessages, { message, sender: 'You', receiver: selectedUserData._id }]);
       setMessage('');
     }
   };
 
   useEffect(() => {
-    // Connection event
     socket.on('connect', () => {
       console.log('Connected');
       console.log('Id:', socket.id);
     });
 
-    // Listen for receive-message event
     socket.on('receive-message', (data) => {
       console.log(`Message received: ${data.message} from ${data.sender}`);
-      setReceivedMessages((prevMessages) => [...prevMessages, { message: data.message, sender: data.sender }]);
+      setReceivedMessages((prevMessages) => [...prevMessages, { message: data.message, sender: data.sender, receiver: googleId }]);
     });
 
     return () => {
@@ -48,12 +72,12 @@ const ChatWindow = ({ dummyMessages = [] }) => {
   return (
     <div className="chat-window">
       <div className="chat-navbar">
-        <Avatar alt="User Avatar" src="https://via.placeholder.com/150" className="avatar" />
-        <h3 className="full-name">Ada Lovelace</h3>
+        <Avatar alt="User Avatar" src={selectedUserData.picture} className="avatar" />
+        <h3 className="full-name">{selectedUserData.name}</h3>
       </div>
       <div className="message-container">
         {receivedMessages.map((msg, index) => (
-          <div key={index} className={`message ${msg.sender === 'John Doe' ? 'sent' : 'received'}`}>
+          <div key={index} className={`message ${msg.receiver === receiverId ? 'sent' : 'received'}`}>
             <p>{msg.message}</p>
           </div>
         ))}
