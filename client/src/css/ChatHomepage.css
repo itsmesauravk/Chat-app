@@ -27,6 +27,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-right: 2px solid rgb(38, 37, 37);
 }
 
 /* User Profile */
@@ -38,6 +39,11 @@
 
 .avatar {
   margin-right: 10px;
+}
+
+/* highlight selected user div */
+.chat-user.selected {
+  background-color: var(--background-color); 
 }
 
 .actions h4,
@@ -214,3 +220,17 @@
   cursor: pointer;
   text-align: center;
 }
+
+
+
+/* loading  */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: #121212;
+
+}
+

@@ -50,7 +50,13 @@
   padding: 10px;
   border: 1px solid var(--on-surface-color);
   border-radius: 5px;
-  color: var(--on-surface-color);
+  color: var(--on-primary-color);
+}
+
+.error-message{
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .login-button,

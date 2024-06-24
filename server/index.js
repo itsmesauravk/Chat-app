@@ -3,6 +3,7 @@ const { createServer } = require('http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const initializeSocket = require('./socket');
+const startSocket = require('./controller/singleChat')
 const passport = require('passport');
 const session = require('express-session');
 const passportConfig = require('./middleware/passport');
@@ -19,6 +20,8 @@ connection();
 const app = express();
 const server = createServer(app);
 
+
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
@@ -32,6 +35,7 @@ passportConfig(passport);
 
 app.use(cors({
   origin: process.env.CLIENT_URL,
+  methods:['GET','POST','DELETE','PUT','PATCH'],
   credentials: true,
 }));
 
@@ -42,7 +46,10 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-const io = initializeSocket(server);
+// initializeSocket(server);
+
+//single chat server
+startSocket(server)
 
 server.listen(4000, () => {
   console.log('Server is running on port 4000');

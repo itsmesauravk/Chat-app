@@ -32,6 +32,11 @@ router.get('/auth/google/callback', passport.authenticate('google', { failureRed
     secure: true,
     sameSite: 'none',
   });
+  res.cookie('googleId', user.googleId, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+  });
 
   res.redirect(`${process.env.CLIENT_URL}/chat-home`);
 });

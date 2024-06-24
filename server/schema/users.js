@@ -16,9 +16,17 @@ const userSchema = new moongose.Schema({
     picture : {
         type : String
     },
+    socketId :{
+        type :String,
+        default : null
+    },
+    socketRoomId:[{
+        type : String
+    }],
     refreshToken : {
         type : String
     }
+
 },{
     timestamps : true
 })

@@ -4,8 +4,14 @@ import { Button, Container, Stack, TextField, Typography } from '@mui/material'
 
 const ChatPage = () => {
 
+  const googleId = localStorage.getItem("googleId")
+
+
   const socket = useMemo(() => io('http://localhost:4000',{
-    withCredentials: true
+    withCredentials:true,
+    auth:{
+      googleId:googleId
+    }
   }), [])
 
   const [message, setMessage] = useState('')
@@ -34,10 +40,10 @@ const ChatPage = () => {
       console.log('Id:', socket.id)
     })
 
-    // calling from emit
-    socket.on('message', (data) => {
-      console.log(data)
-    })
+      // calling from emit
+      socket.on('message', (data) => {
+        console.log(data)
+      })
 
     // listener for receive-message
     socket.on('receive-message', (data) => {
