@@ -5,8 +5,10 @@ import { io } from 'socket.io-client';
 const ChatWindow = ({ selectedUserData }) => {
   const [message, setMessage] = useState('');
   const [receivedMessages, setReceivedMessages] = useState([]);
-  const googleId = localStorage.getItem('googleId');
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState('');
 
+  const googleId = localStorage.getItem('googleId');
   const receiverId = selectedUserData._id;
 
   const getMessages = async () => {
@@ -20,7 +22,7 @@ const ChatWindow = ({ selectedUserData }) => {
       });
       const data = await response.json();
       if (data.success) {
-        setReceivedMessages(data.messages);  // Set the messages from the database
+        setReceivedMessages(data.messages);
       }
     } catch (error) {
       console.log(error);
@@ -42,13 +44,19 @@ const ChatWindow = ({ selectedUserData }) => {
     });
   }, [googleId]);
 
+  const handleTyping = () => {
+    socket.emit('typing', { sender: googleId, receiverSocketId: selectedUserData.socketId });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim() && selectedUserData) {
       const data = { message, googleId, receiverId: selectedUserData._id };
       socket.emit('message', data);
-      console.log(`Message sent: ${message}`);
-      setReceivedMessages((prevMessages) => [...prevMessages, { message, sender: 'You', receiver: selectedUserData._id }]);
+      setReceivedMessages((prevMessages) => [
+        ...prevMessages,
+        { message, sender: 'You', receiver: selectedUserData._id },
+      ]);
       setMessage('');
     }
   };
@@ -60,14 +68,27 @@ const ChatWindow = ({ selectedUserData }) => {
     });
 
     socket.on('receive-message', (data) => {
-      console.log(`Message received: ${data.message} from ${data.sender}`);
-      setReceivedMessages((prevMessages) => [...prevMessages, { message: data.message, sender: data.sender, receiver: googleId }]);
+      setReceivedMessages((prevMessages) => [
+        ...prevMessages,
+        { message: data.message, sender: data.sender, receiver: googleId },
+      ]);
+    });
+
+    socket.on('typing', (data) => {
+      if (data.sender !== googleId) {
+        setIsTyping(true);
+        setTypingUser(data.sender);
+        setTimeout(() => {
+          setIsTyping(false)
+          setTypingUser('');
+        }, 3000);
+      }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [socket]);
+  }, [socket, googleId]);
 
   return (
     <div className="chat-window">
@@ -81,6 +102,7 @@ const ChatWindow = ({ selectedUserData }) => {
             <p>{msg.message}</p>
           </div>
         ))}
+        {isTyping && <div className="typing-indicator">{typingUser}typing...</div>}
       </div>
       <div className="send-chat">
         <input
@@ -89,6 +111,7 @@ const ChatWindow = ({ selectedUserData }) => {
           className="chat-input"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={handleTyping}
         />
         <button className="send-button" onClick={handleSubmit}>Send</button>
       </div>

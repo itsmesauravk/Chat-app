@@ -26,35 +26,37 @@ const startSocket = (server) => {
             return;
         }
 
-        user.socketId = socket.id; 
+        user.socketId = socket.id; // Update the socket ID on every new connection
         await user.save();
 
         socket.on('message', async (data) => {
             const sender = await Person.findOne({ googleId: data.googleId });
             const receiver = await Person.findById(data.receiverId);
-
-            if (receiver && receiver.socketId) {
-                // console.log(`Message from ${sender.name} to ${receiver.name}: ${data.message}`);
+        
+            if (receiver) {
+                console.log(`Message from ${sender.name} to ${receiver.name}: ${data.message}`);
                 io.to(receiver.socketId).emit('receive-message', {
                     message: data.message,
                     sender: sender.name
                 });
-
-                const room = await Message.findOne({
+        
+                // Find if a chat room already exists
+                let room = await Message.findOne({
                     $or: [
                         { sender: sender._id, receiver: receiver._id },
                         { sender: receiver._id, receiver: sender._id }
                     ]
                 });
-
+        
                 if (room) {
                     room.messages.push({
                         sender: sender._id,
                         receiver: receiver._id,
                         message: data.message
                     });
+        
                     await room.save();
-                    console.log('Message saved in existing room');
+                    // console.log('Message saved');
                 } else {
                     const newMessage = new Message({
                         sender: sender._id,
@@ -66,9 +68,16 @@ const startSocket = (server) => {
                         }]
                     });
                     await newMessage.save();
-                    console.log('New message room created and message saved');
+                    // console.log('Message saved');
                 }
             }
+        });
+        
+
+        // Handle typing event
+        socket.on('typing', (data) => {
+            const receiverSocketId = data.receiverSocketId;
+            io.to(receiverSocketId).emit('typing', { sender: data.sender });
         });
 
         socket.on('disconnect', async () => {
